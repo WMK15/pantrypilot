@@ -1,5 +1,6 @@
 # PantryPilot 
-![Logo](/pantry/public/logo.png)
+![Logo](https://i.imgur.com/foGrGUX.png)
+
 
 ## Overview
 
