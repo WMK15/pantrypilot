@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# PantryPilot 
+![Logo](/pantry/public/logo.png)
 
-## Getting Started
+## Overview
 
-First, run the development server:
+**PantryPilot** is a dynamic web application designed to help you manage your pantry inventory. It allows you to add, search, and remove items, providing a simple and intuitive interface to keep track of your stock.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Add Items:** Easily add new items to your pantry with a user-friendly interface.
+- **Search Items:** Quickly find items in your pantry using a search bar.
+- **Remove Items:** Remove items from your pantry or adjust their quantities.
+- **Real-Time Updates:** Synchronize data with Firebase Firestore in real-time.
+- **Animated UI:** Modern, animated UI elements with a sleek, futuristic design.
+- **Responsive Design:** Works seamlessly across different devices and screen sizes.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## How to Deploy Locally
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Follow these steps to set up and run PantryPilot on your local machine:
 
-## Learn More
+### Prerequisites
 
-To learn more about Next.js, take a look at the following resources:
+- [Node.js](https://nodejs.org/) (v14 or higher)
+- [npm](https://www.npmjs.com/get-npm) or [Yarn](https://yarnpkg.com/)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Installation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+1. **Clone the Repository**
 
-## Deploy on Vercel
+    ```sh
+    git clone <repository-url>
+    cd <repository-name>
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. **Set Up Firebase**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Create a new Firebase project on the [Firebase Console](https://console.firebase.google.com/).
+- Enable Firestore database for your project.
+- Copy the Firebase configuration object from the project settings.
+
+3. **Configure Environment Variables**
+
+- Create a new file named `.env` in the root directory of the project.
+- Add the following environment variables to the `.env` file:
+
+  ```sh
+  FIREBASE_API_KEY=YOUR_API_KEY
+  FIREBASE_AUTH_DOMAIN=YOUR_AUTH_DOMAIN
+  FIREBASE_PROJECT_ID=YOUR_PROJECT_ID
+  FIREBASE_STORAGE_BUCKET=YOUR_STORAGE_BUCKET
+  FIREBASE_MESSAGING_SENDER_ID=YOUR_MESSAGING_SENDER_ID
+  FIREBASE_APP_ID=YOUR_APP_ID
+  ```
+
+- Replace `YOUR_API_KEY`, `YOUR_AUTH_DOMAIN`, `YOUR_PROJECT_ID`, `YOUR_STORAGE_BUCKET`, `YOUR_MESSAGING_SENDER_ID`, and `YOUR_APP_ID` with the corresponding values from your Firebase project configuration.
+
+4. **Start the Development Server**
+
+-
+     ```sh
+     npm start
+     ```
+
+5. **Access the App**
+
+     Open your web browser and navigate to `http://localhost:3000` to access the App.
+     
+<hr>
+That's it! You have successfully deployed the Pantry Management App locally. Enjoy managing your pantry inventory with ease!
