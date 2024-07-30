@@ -21,7 +21,7 @@ Follow these steps to set up and run PantryPilot on your local machine:
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v14 or higher)
+- [Node.js](https://nodejs.org/) (v20 or higher)
 - [npm](https://www.npmjs.com/get-npm) or [Yarn](https://yarnpkg.com/)
 
 ### Installation
