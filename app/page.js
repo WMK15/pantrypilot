@@ -1,95 +1,97 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import { Box } from "@mui/material";
+import { firestore } from "../firebase";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+} from "firebase/firestore";
+import { useEffect, useState } from "react";
+import ItemList from "./components/ItemList";
+import SearchBar from "./components/SearchBar";
+import AddItem from "./components/AddItem";
 
 export default function Home() {
+  const [pantry, setPantry] = useState([]);
+  const [filteredPantry, setFilteredPantry] = useState([]);
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const updatePantry = async () => {
+    const snapshot = query(collection(firestore, "pantry"));
+    const docs = await getDocs(snapshot);
+    const items = [];
+    docs.forEach((doc) => {
+      items.push({ name: doc.id, ...doc.data() });
+    });
+    console.log(items);
+    setPantry(items);
+    setFilteredPantry(items);
+  };
+
+  const handleSearch = (query) => {
+    const lowercasedQuery = query.toLowerCase();
+    const filtered = pantry.filter((item) =>
+      item.name.toLowerCase().includes(lowercasedQuery)
+    );
+    setFilteredPantry(filtered);
+  };
+
+  const addItem = async (itemName) => {
+    const docRef = doc(collection(firestore, "pantry"), itemName);
+    // Check if it exists
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const count = docSnap.data().count + 1;
+      await setDoc(docRef, { count });
+    } else {
+      await setDoc(docRef, { count: 1 });
+    }
+    await updatePantry();
+  };
+
+  const removeItem = async (itemName) => {
+    const docRef = doc(collection(firestore, "pantry"), itemName);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const { count } = docSnap.data();
+      if (count === 1) {
+        await deleteDoc(docRef);
+      } else {
+        await setDoc(docRef, { count: count - 1 });
+      }
+    }
+    await updatePantry();
+  };
+
+  useEffect(() => {
+    updatePantry();
+  }, []);
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    <Box
+      width={"100vw"} // Corrected to '100vw'
+      height={"100vh"}
+      display={"flex"}
+      justifyContent={"center"}
+      flexDirection={"column"}
+      alignItems={"center"}
+      gap={1} // Reduced gap for closer spacing
+      sx={{ overflowX: "hidden" }} // Prevent horizontal overflow
+    >
+      <AddItem addItem={addItem} open={open} handleClose={handleClose} />
+      <SearchBar onSearch={handleSearch} />
+      <ItemList
+        pantry={filteredPantry}
+        removeItem={removeItem}
+        handleOpen={handleOpen}
+      />
+    </Box>
   );
 }
