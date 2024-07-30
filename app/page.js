@@ -1,4 +1,5 @@
 "use client";
+import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import { firestore } from "../firebase";
 import {
@@ -10,7 +11,6 @@ import {
   query,
   setDoc,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
 import ItemList from "./components/ItemList";
 import SearchBar from "./components/SearchBar";
 import AddItem from "./components/AddItem";
@@ -18,19 +18,14 @@ import AddItem from "./components/AddItem";
 export default function Home() {
   const [pantry, setPantry] = useState([]);
   const [filteredPantry, setFilteredPantry] = useState([]);
-
   const [open, setOpen] = useState(false);
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   const updatePantry = async () => {
-    const snapshot = query(collection(firestore, "pantry"));
-    const docs = await getDocs(snapshot);
-    const items = [];
-    docs.forEach((doc) => {
-      items.push({ name: doc.id, ...doc.data() });
-    });
-    console.log(items);
+    const snapshot = await getDocs(collection(firestore, "pantry"));
+    const items = snapshot.docs.map((doc) => ({ name: doc.id, ...doc.data() }));
     setPantry(items);
     setFilteredPantry(items);
   };
@@ -43,22 +38,23 @@ export default function Home() {
     setFilteredPantry(filtered);
   };
 
-  const addItem = async (itemName) => {
+  const addItem = async (itemName, imageUrl) => {
     const docRef = doc(collection(firestore, "pantry"), itemName);
-    // Check if it exists
     const docSnap = await getDoc(docRef);
+
     if (docSnap.exists()) {
       const count = docSnap.data().count + 1;
-      await setDoc(docRef, { count });
+      await setDoc(docRef, { count, imageUrl }, { merge: true });
     } else {
-      await setDoc(docRef, { count: 1 });
+      await setDoc(docRef, { count: 1, imageUrl });
     }
-    await updatePantry();
+    updatePantry();
   };
 
   const removeItem = async (itemName) => {
     const docRef = doc(collection(firestore, "pantry"), itemName);
     const docSnap = await getDoc(docRef);
+
     if (docSnap.exists()) {
       const { count } = docSnap.data();
       if (count === 1) {
@@ -67,7 +63,7 @@ export default function Home() {
         await setDoc(docRef, { count: count - 1 });
       }
     }
-    await updatePantry();
+    updatePantry();
   };
 
   useEffect(() => {
@@ -76,14 +72,14 @@ export default function Home() {
 
   return (
     <Box
-      width={"100vw"} // Corrected to '100vw'
+      width={"100vw"}
       height={"100vh"}
       display={"flex"}
       justifyContent={"center"}
       flexDirection={"column"}
       alignItems={"center"}
-      gap={1} // Reduced gap for closer spacing
-      sx={{ overflowX: "hidden" }} // Prevent horizontal overflow
+      gap={1}
+      sx={{ overflowX: "hidden" }}
     >
       <AddItem addItem={addItem} open={open} handleClose={handleClose} />
       <SearchBar onSearch={handleSearch} />

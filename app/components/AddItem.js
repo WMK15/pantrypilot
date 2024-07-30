@@ -6,7 +6,10 @@ import {
   TextField,
   Button,
   Stack,
+  CircularProgress,
 } from "@mui/material";
+import { storage } from "../../firebase";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 const style = {
   position: "absolute",
@@ -25,6 +28,60 @@ const style = {
 
 export default function AddItem({ addItem, open, handleClose }) {
   const [itemName, setItemName] = useState("");
+  const [image, setImage] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [imageUrl, setImageUrl] = useState("");
+
+  const handleImageChange = (e) => {
+    if (e.target.files[0]) {
+      setImage(e.target.files[0]);
+    }
+  };
+
+  const handleUpload = () => {
+    if (!image) {
+      console.error("No image selected");
+      return;
+    }
+
+    setUploading(true);
+
+    const storageRef = ref(storage, `images/${image.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, image);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        setProgress(progress);
+      },
+      (error) => {
+        console.error("Upload error:", error);
+        setUploading(false);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setImageUrl(downloadURL);
+          setUploading(false);
+        });
+      }
+    );
+  };
+
+  const handleAddItem = async () => {
+    if (!itemName || !imageUrl) {
+      console.error("Item name or image URL is missing");
+      return;
+    }
+    await addItem(itemName, imageUrl);
+    setItemName("");
+    setImage(null);
+    setImageUrl("");
+    handleClose();
+  };
 
   return (
     <Modal
@@ -37,7 +94,7 @@ export default function AddItem({ addItem, open, handleClose }) {
         <Typography id="modal-modal-title" variant="h6" component="h2">
           Add Item
         </Typography>
-        <Stack direction={"row"} spacing={2} width={"100%"}>
+        <Stack direction={"column"} spacing={2} width={"100%"}>
           <TextField
             id="outlined-basic"
             label="Item Name"
@@ -46,14 +103,38 @@ export default function AddItem({ addItem, open, handleClose }) {
             fullWidth
             value={itemName}
           />
+          <input
+            accept="image/*"
+            style={{ display: "none" }}
+            id="upload-image"
+            type="file"
+            capture="environment"
+            onChange={handleImageChange}
+          />
+          <label htmlFor="upload-image">
+            <Button variant="contained" component="span">
+              Choose Image
+            </Button>
+          </label>
+          {image && <Typography variant="body1">{image.name}</Typography>}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleUpload}
+            disabled={uploading || !image}
+          >
+            {uploading ? <CircularProgress size={24} /> : "Upload Image"}
+          </Button>
+          {imageUrl && (
+            <Typography variant="body1">
+              Image uploaded successfully!
+            </Typography>
+          )}
           <Button
             variant={"contained"}
             color={"primary"}
-            onClick={async () => {
-              addItem(itemName);
-              setItemName("");
-              handleClose();
-            }}
+            onClick={handleAddItem}
+            disabled={!itemName || !imageUrl}
           >
             Add
           </Button>

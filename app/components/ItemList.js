@@ -1,5 +1,5 @@
+import React, { useEffect, useRef, useState } from "react";
 import { Box, Button, Stack, Typography } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
 import "animate.css";
 
 const darkColors = {
@@ -96,7 +96,7 @@ const ItemList = ({ pantry, removeItem, handleOpen }) => {
           padding: 2,
         }}
       >
-        {pantry.map(({ name, count }) => (
+        {pantry.map(({ name, count, imageUrl }) => (
           <Box
             key={name}
             data-id={name}
@@ -118,22 +118,33 @@ const ItemList = ({ pantry, removeItem, handleOpen }) => {
             marginBottom={2}
             boxShadow={`0 2px 4px ${darkColors.shadow}`}
           >
-            <Typography
-              variant="h4"
-              color={darkColors.textPrimary}
-              textAlign="center"
-              sx={{ textShadow: `0 1px 2px ${darkColors.shadow}` }}
-            >
-              {name.charAt(0).toUpperCase() + name.slice(1)}
-            </Typography>
-            <Typography
-              variant="h4"
-              color={darkColors.textSecondary}
-              textAlign="center"
-              sx={{ textShadow: `0 1px 2px ${darkColors.shadow}` }}
-            >
-              Quantity: {count}
-            </Typography>
+            <Box
+              component="img"
+              src={imageUrl}
+              alt={name}
+              sx={{
+                width: 80,
+                height: 80,
+                objectFit: "cover",
+                borderRadius: 1,
+              }}
+            />
+            <Box flex={1} textAlign="center">
+              <Typography
+                variant="h4"
+                color={darkColors.textPrimary}
+                sx={{ textShadow: `0 1px 2px ${darkColors.shadow}` }}
+              >
+                {name.charAt(0).toUpperCase() + name.slice(1)}
+              </Typography>
+              <Typography
+                variant="h4"
+                color={darkColors.textSecondary}
+                sx={{ textShadow: `0 1px 2px ${darkColors.shadow}` }}
+              >
+                Quantity: {count}
+              </Typography>
+            </Box>
             <Button
               variant="contained"
               color="secondary"
